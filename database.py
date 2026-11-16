@@ -7,7 +7,8 @@ def get_brt_time():
     return datetime.now(br_tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
-DB_PATH = "tcc_assistant.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "tcc_assistant.db")
 
 def get_connection():
     return sqlite3.connect(DB_PATH)

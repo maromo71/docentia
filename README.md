@@ -130,7 +130,7 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
    ```bash
    python main.py
    ```
-   > No Windows, você também pode iniciar diretamente usando o atalho [`iniciar_tcc_analyzer.bat`](iniciar_tcc_analyzer.bat).
+   > No Windows, você também pode iniciar diretamente usando o atalho [`iniciar.bat`](iniciar.bat).
 
 ---
 
@@ -146,9 +146,9 @@ docentia/
 │   ├── logo.svg
 │   ├── icons/
 │   └── illustrations/
-├── docs/                        # Documentação técnica e guia do usuário
-├── HARNESS_WEB_MIGRATION.md     # Especificação arquitetural para futura versão Web (React + Vite)
-├── iniciar_tcc_analyzer.bat     # Inicializador rápido para Windows
+├── docs/                        # Documentação técnica, guia do usuário e especificação Web
+│   └── HARNESS_WEB_MIGRATION.md # Especificação arquitetural para futura versão Web (React + Vite)
+├── iniciar.bat                  # Inicializador rápido para Windows
 ├── .env-example                 # Modelo de configuração SMTP
 └── LICENSE                      # Licença MIT
 ```
@@ -165,7 +165,7 @@ Explore a pasta `docs/` para detalhes técnicos completos e guias de utilizaçã
 | [docs/banco_de_dados.md](docs/banco_de_dados.md) | Modelagem de dados e esquema do banco SQLite |
 | [docs/diagramas.md](docs/diagramas.md) | Fluxogramas e diagramas de sequência da aplicação |
 | [docs/tutorial_uso_ui.md](docs/tutorial_uso_ui.md) | Guia passo a passo focado no usuário final |
-| [HARNESS_WEB_MIGRATION.md](HARNESS_WEB_MIGRATION.md) | Especificação completa para portar o projeto para Web 100% client-side |
+| [docs/HARNESS_WEB_MIGRATION.md](docs/HARNESS_WEB_MIGRATION.md) | Especificação completa para portar o projeto para Web 100% client-side |
 
 ---
 

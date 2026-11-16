@@ -91,7 +91,7 @@ sequenceDiagram
     Note right of Val: Ignora falsos positivos (Autor, Autores)<br>Comuns em subtítulos de figuras.
     
     Val->>Val: match_citations()<br>(Cruza Autoria com Referências)
-    Val-->>UI: Retorna Lista com status (✅/❌/ℹ️)
+    Val-->>UI: Retorna Lista com status (✅/⚠️/❌/ℹ️)
     
     UI-->>Avaliador: Exibe modal com grid (Tabela)
 ```
@@ -132,8 +132,10 @@ sequenceDiagram
 classDiagram
     class TCCAssistantApp {
         +current_project_id: int
+        +current_theme: str
         +init_dashboard()
         +init_workspace(project_id)
+        +toggle_theme()
         +run_citation_validation()
         +send_reports_by_email()
     }
@@ -142,7 +144,17 @@ classDiagram
         +pdf_document: fitz.Document
         +load_pdf(file_path)
         +render_page()
+        +set_theme(theme)
         +mouseReleaseEvent(event)
+    }
+
+    class ui_theme {
+        <<module>>
+        +DARK_GLASS_QSS
+        +LIGHT_PAPER_QSS
+        +THEME_TOKENS
+        +load_svg_icon()
+        +load_svg_pixmap()
     }
 
     class database {
@@ -151,6 +163,8 @@ classDiagram
         +get_project()
         +add_annotation()
         +delete_annotation()
+        +get_setting()
+        +set_setting()
     }
     
     class validador_citacoes {
@@ -161,6 +175,7 @@ classDiagram
     }
 
     TCCAssistantApp *-- PDFViewer : Embutido na QSplitter
+    TCCAssistantApp ..> ui_theme : Aplica QSS e carrega SVGs
     TCCAssistantApp ..> database : Envia/Pede Dados
     TCCAssistantApp ..> validador_citacoes : Executa Rotina Pesada
 ```

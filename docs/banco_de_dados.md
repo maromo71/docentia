@@ -1,10 +1,10 @@
 # Modelagem do Banco de Dados
 
-O banco de dados utilizado é o **SQLite3**, configurado e operado localmente através do arquivo `tcc_assistant.db`. 
+O banco de dados utilizado é o **SQLite3**, configurado e operado localmente através do arquivo `tcc_assistant.db` (resolvido no mesmo diretório de `database.py`). 
 
 ## 1. Schema do Banco de Dados
 
-O banco é dividido essencialmente em duas tabelas que formam um relacionamento lógico (Um-Para-Muitos).
+O banco é dividido em três tabelas: duas principais que formam um relacionamento lógico (Um-Para-Muitos) e uma tabela de configurações da aplicação.
 
 ### Tabela `projects`
 Guarda os dados contextuais da avaliação, incluindo quem é o autor do TCC e qual arquivo PDF está atrelado a ele.
@@ -33,6 +33,14 @@ Cada registro aponta uma correção, sugestão ou comentário feito pelo profess
 | `category` | TEXT | - | "Apontamentos", "Dúvida" ou "Sugestão". |
 | `professor_notes`| TEXT | - | Redação elaborada pelo avaliador apontando a correção/crítica. |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Data da criação da anotação. |
+
+### Tabela `app_settings`
+Armazena preferências persistentes da aplicação em formato chave-valor (atualmente utilizada para salvar o tema escolhido pelo usuário: `"dark"` ou `"light"`).
+
+| Coluna | Tipo | Restrições | Descrição |
+| :--- | :--- | :--- | :--- |
+| `key` | TEXT | PRIMARY KEY | Identificador da configuração (ex: `'theme'`). |
+| `value` | TEXT | NOT NULL | Valor armazenado (ex: `'dark'` ou `'light'`). |
 
 ---
 

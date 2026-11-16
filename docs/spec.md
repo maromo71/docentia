@@ -19,17 +19,20 @@ O aplicativo permite a leitura e navegação do PDF diretamente na ferramenta, s
 
 ## 3. Arquitetura do Sistema
 O projeto é dividido em arquivos e módulos principais:
-- `main.py`: Contém toda a lógica de Interface de Usuário (UI), componentes PyQt6 (Dialogs, MainWindow), o visualizador de PDF (QGraphicsView customizado) e as integrações de eventos.
-- `database.py`: Módulo responsável pela interação com o banco de dados SQLite (`tcc_assistant.db`), provendo um modelo CRUD (Create, Read, Update, Delete) para Projetos e Anotações.
-- `validador_citacoes.py`: Módulo autônomo (CLI) responsável pela extração das referências e validação de citações no formato ABNT com base no texto do PDF, com relatórios em planilhas.
-- `iniciar_tcc_analyzer.bat`: Script em lote do Windows usado para inicializar rapidamente a aplicação.
+- `main.py`: Contém toda a lógica de Interface de Usuário (UI), componentes PyQt6 (`Dialogs`, `TCCAssistantApp`), o visualizador de PDF (`PDFViewer`) e as integrações de eventos, exportação e envio de e-mail.
+- `ui_theme.py`: Define os temas `DARK_GLASS_QSS` e `LIGHT_PAPER_QSS`, tokens de cor (`THEME_TOKENS`) e utilitários para carregamento de ícones e ilustrações SVG da pasta `assets/`.
+- `database.py`: Módulo responsável pela interação com o banco de dados SQLite (`tcc_assistant.db`), provendo um modelo CRUD para Projetos e Anotações, além de persistência de configurações (`app_settings`).
+- `validador_citacoes.py`: Módulo autônomo (e executável via CLI) responsável pela extração das referências e validação de citações no formato ABNT com base no texto do PDF, com relatórios em planilhas.
+- `iniciar.bat`: Script em lote do Windows usado para inicializar rapidamente a aplicação utilizando o ambiente virtual (`venv\Scripts\pythonw.exe`).
 
 ### Modelo de Dados
-O banco de dados possui duas tabelas:
+O banco de dados possui três tabelas:
 1. **projects:** 
-   - `id` (PK), `student_name`, `thesis_title`, `pdf_path`, `general_opinion`, `status`, `updated_at`.
+   - `id` (PK), `student_name`, `thesis_title`, `advisor_name`, `advisor_email`, `pdf_path`, `general_opinion`, `status`, `updated_at`.
 2. **annotations:** 
    - `id` (PK), `project_id` (FK -> projects.id), `page_number`, `selected_text`, `category`, `professor_notes`, `created_at`.
+3. **app_settings:**
+   - `key` (PK), `value` (armazena preferências como o tema `'dark'` ou `'light'`).
 
 A exclusão de um projeto tem efeito cascata (CASCADE) sobre as suas anotações, e modificações nas anotações atualizam a data de `updated_at` do projeto associado.
 
@@ -39,10 +42,11 @@ A exclusão de um projeto tem efeito cascata (CASCADE) sobre as suas anotações
 
 ### 4.1. Painel de Controle (Dashboard)
 A tela inicial lista todos os projetos de revisão cadastrados.
-- **Nova Revisão:** Abre um formulário para criar um novo projeto informando Nome do Aluno, Título do TCC e o caminho do arquivo PDF correspondente.
-- **Abrir Revisão:** Abre a área de trabalho (Workspace) do projeto selecionado.
-- **Excluir Revisão:** Apaga o projeto selecionado e todas as suas anotações do banco de dados (solicita confirmação prévia).
-- **Lista de Projetos:** Tabela interativa exibindo ID, Nome, Título, Status (ex: "Em Andamento") e Data da última atualização.
+- **Cabeçalho e Tema:** Exibe o logotipo do Docentia e o botão para alternar entre **Modo Claro** e **Modo Escuro** (preferência salva em `app_settings`).
+- **Cartões de Métricas:** Indicadores resumidos de **Total de Revisões**, **Em Andamento** e **Concluídas**.
+- **Nova Revisão:** Abre um formulário (`NewProjectDialog`) para criar um novo projeto informando Nome do Aluno, Título do TCC, Nome e E-mail do Orientador e o caminho do arquivo PDF correspondente.
+- **Abrir Revisão / Editar / Alterar Status / Excluir:** Ações rápidas para abrir o Workspace, editar metadados (`EditProjectDialog`), alternar o status entre `"In Progress"` e `"Concluído"` ou apagar o projeto e suas anotações (com confirmação prévia).
+- **Busca e Lista de Projetos:** Campo de filtro (`Filtrar por aluno ou título...`) e tabela interativa exibindo ID, Nome, Título, Status e Data da última atualização (além de estado vazio ilustrado quando não há revisões).
 
 ### 4.2. Área de Trabalho (Workspace)
 A área de trabalho é dividida em duas colunas (usando `QSplitter`), priorizando o layout 65% para o PDF e 35% para anotações.
@@ -65,26 +69,28 @@ A área de trabalho é dividida em duas colunas (usando `QSplitter`), priorizand
 - **Parecer Geral:**
   - Área de texto para avaliação global do projeto. Possui recurso de *Auto-save* com atraso (debounced) de 2 segundos após a digitação.
 - **Exportação e Saída:**
-  - **Exportar Relatório:** Abre a janela `ExportDialog`, permitindo que o usuário informe o "Nome do Avaliador", selecione uma data e escolha o formato de saída (**PDF (.pdf)** ou **Word (.docx)**). 
+  - **Validar Citações:** Executa a análise ABNT e abre a janela `CitationReportDialog` com opção de editar itens (`EditCitationDialog`), excluir ou exportar para Excel (`.xlsx`).
+  - **Exportar:** Abre a janela `ExportDialog`, permitindo que o usuário informe o "Nome do Avaliador", selecione uma data e escolha o formato de saída (**PDF (.pdf)** ou **Word (.docx)**). 
     - O relatório é formatado de forma padronizada.
     - O PDF é gerado nativamente pelo `QPdfWriter` do PyQt6 (sem necessidade de conversores externos).
     - O documento final inclui uma seção de rodapé com o nome do avaliador escrito em uma **fonte cursiva**, servindo como uma assinatura digital.
-  - **Salvar Rascunho e Sair:** Retorna o usuário para o Dashboard principal.
+  - **E-mail:** Abre o `ExportDialog` e envia o parecer gerado junto da planilha de citações via SMTP (configurado no `.env`) para o e-mail do orientador.
+  - **Salvar e Sair (ou botão Painel no topo):** Salva o parecer atual e retorna o usuário para o Dashboard principal.
 
-### 4.3. Validação Automática de Citações (CLI)
-Através do script autônomo `validador_citacoes.py`, o projeto oferece uma ferramenta complementar (via linha de comando) para automatizar a verificação das normas ABNT no texto do PDF:
+### 4.3. Validação Automática de Citações
+Através do módulo `validador_citacoes.py` (integrado à UI e também executável via linha de comando), o projeto automatiza a verificação das normas ABNT no texto do PDF:
 - **Extração de Referências:** Identifica automaticamente a seção de "REFERÊNCIAS BIBLIOGRÁFICAS" no final do PDF e isola cada entrada bibliográfica.
 - **Identificação de Citações:** Utiliza expressões regulares (RegEx) para localizar citações no formato ABNT ao longo do texto (ex: `(AUTOR, 2023)` ou `Autor (2023)`), filtrando menções a "próprio autor".
 - **Cruzamento e Verificação:** Relaciona as citações mapeadas ao longo do documento com a lista de referências ao final.
-- **Relatório Detalhado:** Identifica citações sem referência ("Falta na Bibliografia"), citações corretas ("OK"), e referências presentes no final mas não citadas no texto ("Sobrando"). Exporta todos os resultados com o contexto do parágrafo e página para um arquivo Excel (`.xlsx`) ou `.csv`.
+- **Relatório Detalhado:** Classifica cada item como `✅ OK`, `⚠️ ANO DIVERGENTE`, `❌ FALTA NA BIBLIOGRAFIA` ou `ℹ️ SOBRANDO (NÃO CITADA)`. Exporta todos os resultados com o contexto do parágrafo e página para um arquivo Excel (`.xlsx`) ou `.csv`.
 
 ---
 
 ## 5. Interface Gráfica e UX
-O sistema utiliza um tema QSS (Qt Style Sheets) embutido no código chamado `DARK_GLASS_QSS`, caracterizado por:
-- Design *Dark Mode* (#0b0f19 background).
-- Efeitos visuais de vidro fosco para contêineres e tabelas.
-- Botões estilizados e responsivos (verde para criação, azul para neutro/edição, vermelho para cancelamento/exclusão, laranja para ações de salvar/navegação).
+O sistema utiliza folhas de estilo QSS definidas em `ui_theme.py` com alternância dinâmica entre dois temas:
+- **`DARK_GLASS_QSS` (Modo Escuro):** Fundo ardósia escuro (`#0b0f19`) com painéis translúcidos e contraste suave para leitura noturna.
+- **`LIGHT_PAPER_QSS` (Modo Claro):** Superfícies claras (`#f4f6fa` / `#ffffff`) inspiradas em papel acadêmico.
+- **Tokens e Iconografia SVG:** `THEME_TOKENS` adapta o fundo do canvas do PDF (`scene_bg`), cores de ícones e abas, enquanto ícones e ilustrações vetoriais em `assets/` garantem nitidez em telas HiDPI.
 - Layout fluido ajustável pela alça do `QSplitter`.
 
 ## 6. Fluxo de Execução
