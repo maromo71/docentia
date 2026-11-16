@@ -96,8 +96,8 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
 
 1. **Clone o repositório**
    ```bash
-   git clone https://github.com/maromo71/tcc_analyzer.git
-   cd tcc_analyzer
+   git clone https://github.com/maromo71/docentia.git
+   cd docentia
    ```
 
 2. **Crie e ative um ambiente virtual** *(recomendado)*
@@ -137,7 +137,7 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
 ## ✦ Estrutura do Projeto
 
 ```text
-tcc_analyzer/
+docentia/
 ├── main.py                      # Interface gráfica PyQt6 (Dashboard, Workspace, Diálogos e Exportação)
 ├── ui_theme.py                  # Temas Dark Glass & Light Paper, tokens de cor e carregador SVG
 ├── database.py                  # Camada SQLite (projetos, anotações e preferências de tema)
