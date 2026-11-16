@@ -1,6 +1,6 @@
 # Tutorial de Uso UI/UX (Avaliadores e Professores)
 
-Bem-vindo ao **Assistente de Revisão de TCC**! Preparamos este tutorial com o olhar afiado de um designer de UX (User Experience) para guiar você desde o seu primeiro projeto até a geração final do relatório em e-mail.
+Bem-vindo ao **Docentia**! Preparamos este tutorial com o olhar afiado de um designer de UX (User Experience) para guiar você desde o seu primeiro projeto até a geração final do relatório em e-mail.
 
 ## 1. Visão Geral: O Painel de Projetos (Dashboard)
 

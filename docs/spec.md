@@ -1,7 +1,7 @@
-# Especificação Completa do TCC Analyzer
+# Especificação Completa do Docentia
 
 ## 1. Visão Geral
-O **TCC Analyzer** (Assistente de Revisão de TCC) é um aplicativo desktop construído em Python, com interface gráfica utilizando **PyQt6**, projetado para auxiliar professores e membros de bancas examinadoras na revisão e avaliação de Trabalhos de Conclusão de Curso (TCC) em formato PDF.
+O **Docentia** (Assistente de Revisão de TCC) é um aplicativo desktop construído em Python, com interface gráfica utilizando **PyQt6**, projetado para auxiliar professores e membros de bancas examinadoras na revisão e avaliação de Trabalhos de Conclusão de Curso (TCC) em formato PDF.
 
 O aplicativo permite a leitura e navegação do PDF diretamente na ferramenta, seleção de trechos com captura automática de texto e a criação de anotações categorizadas que podem ser posteriormente exportadas para um documento Word (.docx) formatado.
 
@@ -22,7 +22,7 @@ O projeto é dividido em arquivos e módulos principais:
 - `main.py`: Contém toda a lógica de Interface de Usuário (UI), componentes PyQt6 (Dialogs, MainWindow), o visualizador de PDF (QGraphicsView customizado) e as integrações de eventos.
 - `database.py`: Módulo responsável pela interação com o banco de dados SQLite (`tcc_assistant.db`), provendo um modelo CRUD (Create, Read, Update, Delete) para Projetos e Anotações.
 - `validador_citacoes.py`: Módulo autônomo (CLI) responsável pela extração das referências e validação de citações no formato ABNT com base no texto do PDF, com relatórios em planilhas.
-- `iniciar_tcc_analizer.bat`: Script em lote do Windows usado para inicializar rapidamente a aplicação.
+- `iniciar_tcc_analyzer.bat`: Script em lote do Windows usado para inicializar rapidamente a aplicação.
 
 ### Modelo de Dados
 O banco de dados possui duas tabelas:

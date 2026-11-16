@@ -43,6 +43,13 @@ def init_db():
             FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
         )
     ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS app_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    ''')
     
     conn.commit()
     
@@ -198,6 +205,26 @@ def touch_project(project_id):
     cursor.execute('''
         UPDATE projects SET updated_at = ? WHERE id = ?
     ''', (get_brt_time(), project_id))
+    conn.commit()
+    conn.close()
+
+# --- App Settings ---
+
+def get_setting(key, default=None):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT value FROM app_settings WHERE key = ?', (key,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else default
+
+def set_setting(key, value):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO app_settings (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    ''', (key, str(value)))
     conn.commit()
     conn.close()
 

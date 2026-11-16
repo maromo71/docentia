@@ -1,6 +1,6 @@
-# Diagramas do Assistente de Revisão de TCC
+# Diagramas do Docentia (Assistente de Revisão de TCC)
 
-Este documento apresenta diagramas que explicam a arquitetura e o fluxo de funcionamento profundo do **Assistente de Revisão de TCC**, incluindo UI, Banco de Dados e a Motor de Validação.
+Este documento apresenta diagramas que explicam a arquitetura e o fluxo de funcionamento profundo do **Docentia**, incluindo UI, Banco de Dados e o Motor de Validação.
 
 ## 1. Diagrama de Casos de Uso
 
@@ -10,7 +10,7 @@ Representa as principais interações que o Avaliador (usuário) tem com o siste
 flowchart LR
     Avaliador((Avaliador))
     
-    subgraph Sistema [Assistente de Revisão de TCC]
+    subgraph Sistema [Docentia]
         direction TB
         UC1([Gerenciar Projetos de Revisão])
         UC2([Visualizar e Dar Zoom em PDF])

@@ -1,6 +1,6 @@
 # Arquitetura de Software
 
-Este documento descreve as decisões arquiteturais e a divisão de módulos do **Assistente de Revisão de TCC**. A arquitetura foi pensada de maneira modular, separando a interface gráfica da lógica de persistência e do motor de validação de citações.
+Este documento descreve as decisões arquiteturais e a divisão de módulos do **Docentia** (Assistente de Revisão de TCC). A arquitetura foi pensada de maneira modular, separando a interface gráfica da lógica de persistência e do motor de validação de citações.
 
 ## Visão Geral do Sistema
 
