@@ -89,10 +89,55 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
 
 ## ◈ Instalação e Execução
 
-### Pré-requisitos
-- **Python 3.9+** instalado na máquina
+### 🚀 Instalação Fácil no Windows *(Recomendado — 2 cliques)*
 
-### Passo a passo
+Você **não** precisa saber programar nem digitar comandos no terminal. Siga estes passos apenas na primeira vez:
+
+1. **Instale o Python** *(se ainda não tiver no computador)*
+   - Baixe a versão mais recente em [python.org/downloads](https://www.python.org/downloads/).
+   - **ATENÇÃO:** na **primeira tela** do instalador, **marque a caixinha `"Add python.exe to PATH"`** antes de clicar em *Install Now*.
+
+2. **Baixe o Docentia**
+   - No topo desta página do GitHub, clique no botão verde **`<> Code`** → **`Download ZIP`**.
+   - Após baixar, clique com o botão direito no arquivo `.zip` e selecione **"Extrair tudo..."** (por exemplo, para `C:\docentia`).
+
+3. **Execute o instalador automático**
+   - Abra a pasta extraída e dê **dois cliques em [`instalar.bat`](instalar.bat)**.
+   - Uma janela preta será aberta para preparar tudo automaticamente (`venv`, bibliotecas do [`requirements.txt`](requirements.txt) e o arquivo `.env`).
+   - Quando aparecer **`Instalacao concluida com sucesso!`**, pressione qualquer tecla para fechar.
+
+4. **Abra o programa no dia a dia**
+   - Sempre que quiser usar o Docentia, basta dar **dois cliques em [`iniciar.bat`](iniciar.bat)** *(não é necessário rodar o `instalar.bat` novamente)*.
+
+---
+
+### ✉️ Configurar o envio de e-mail com Gmail *(opcional)*
+
+Se você quiser enviar os relatórios diretamente pelo botão **E-mail** do Docentia (caso contrário, pule esta etapa e use normalmente a exportação em PDF, Word e Excel):
+
+1. Acesse sua Conta Google e certifique-se de que a **Verificação em duas etapas** está ativada na aba *Segurança*.
+2. Entre diretamente em [**Senhas de App do Google**](https://myaccount.google.com/apppasswords), digite um nome (ex.: `Docentia`) e clique em **Criar**. Copie o código de **16 letras** gerado.
+3. Na pasta do Docentia, clique com o botão direito no arquivo **`.env`** *(criado automaticamente pelo `instalar.bat`)* → **Abrir com** → **Bloco de Notas** e preencha:
+   ```env
+   SMTP_SERVER=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=seu-email@gmail.com
+   SMTP_PASSWORD=as16letrasdasenhadeapp
+   ```
+4. Pressione **`Ctrl + S`** para salvar e feche o Bloco de Notas.
+
+> **Importante:** A senha comum do seu Gmail **não** funciona no envio automático; use sempre a **Senha de App**. Evite usar *"Salvar como"* no Bloco de Notas para não salvar o arquivo por engano como `.env.txt`.
+
+---
+
+### 🛟 Problemas comuns (Solução rápida)
+
+- **"Python não encontrado" ao rodar `instalar.bat`:** execute novamente o instalador do Python e marque **`Add python.exe to PATH`** na primeira tela.
+- **Aviso *"O Windows protegeu o computador"*:** clique em **Mais informações** → **Executar assim mesmo**.
+- **Erro ao enviar e-mail:** confirme que o arquivo se chama `.env` (não `.env.txt`) e que a senha colocada é a **Senha de App de 16 letras** do Google.
+
+<details>
+<summary><strong>💻 Instalação Manual (Linux, macOS ou via terminal)</strong></summary>
 
 1. **Clone o repositório**
    ```bash
@@ -100,12 +145,12 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
    cd docentia
    ```
 
-2. **Crie e ative um ambiente virtual** *(recomendado)*
+2. **Crie e ative o ambiente virtual**
    ```bash
    python -m venv venv
 
-   # Windows (PowerShell / CMD)
-   venv\Scripts\activate
+   # Windows (Prompt de Comando - CMD)
+   venv\Scripts\activate.bat
 
    # Linux / macOS
    source venv/bin/activate
@@ -113,24 +158,24 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
 
 3. **Instale as dependências**
    ```bash
-   pip install PyQt6 PyMuPDF python-docx pandas openpyxl python-dotenv
+   pip install -r requirements.txt
    ```
 
-4. **Configure o envio de e-mail *(opcional)***
-   Copie o arquivo de exemplo `.env-example` para `.env` e preencha suas credenciais SMTP:
-   ```env
-   SMTP_SERVER=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=seu-email@gmail.com
-   SMTP_PASSWORD=sua-senha-de-app-de-16-digitos
+4. **Configure o `.env` *(opcional)***
+   ```bash
+   # Windows (CMD)
+   copy .env-example .env
+
+   # Linux / macOS
+   cp .env-example .env
    ```
-   > **Dica:** Para contas Google/Gmail, utilize uma *Senha de App* gerada nas configurações de segurança da conta.
 
 5. **Execute a aplicação**
    ```bash
    python main.py
    ```
-   > No Windows, você também pode iniciar diretamente usando o atalho [`iniciar.bat`](iniciar.bat).
+
+</details>
 
 ---
 
@@ -148,7 +193,9 @@ docentia/
 │   └── illustrations/
 ├── docs/                        # Documentação técnica, guia do usuário e especificação Web
 │   └── HARNESS_WEB_MIGRATION.md # Especificação arquitetural para futura versão Web (React + Vite)
+├── instalar.bat                 # Instalador automático em 2 cliques para Windows
 ├── iniciar.bat                  # Inicializador rápido para Windows
+├── requirements.txt             # Lista de dependências Python do projeto
 ├── .env-example                 # Modelo de configuração SMTP
 └── LICENSE                      # Licença MIT
 ```

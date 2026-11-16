@@ -56,7 +56,9 @@ docentia/
 ├── database.py                  # Manipulação do SQLite
 ├── validador_citacoes.py        # Motor Regex de validação ABNT
 ├── tcc_assistant.db             # Arquivo SQLite gerado localmente
+├── instalar.bat                 # Instalador automático em 2 cliques para Windows
 ├── iniciar.bat                  # Inicializador rápido para Windows (usa venv)
+├── requirements.txt             # Lista de dependências Python do projeto
 ├── .env                         # Variáveis de ambiente locais (SMTP)
 ├── .env-example                 # Modelo de configuração SMTP
 ├── LICENSE                      # Licença MIT

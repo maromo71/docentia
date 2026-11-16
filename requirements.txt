@@ -1,0 +1,6 @@
+PyQt6
+PyMuPDF
+python-docx
+pandas
+openpyxl
+python-dotenv
