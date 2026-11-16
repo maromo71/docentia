@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import sys
 from datetime import datetime, timezone, timedelta
 
 def get_brt_time():
@@ -8,7 +9,24 @@ def get_brt_time():
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "tcc_assistant.db")
+
+
+def get_data_dir():
+    """Return a writable directory for user data (DB and local config)."""
+    if getattr(sys, "frozen", False):
+        if sys.platform.startswith("win"):
+            root = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+        elif sys.platform == "darwin":
+            root = os.path.expanduser("~/Library/Application Support")
+        else:
+            root = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
+        data_dir = os.path.join(root, "Docentia")
+        os.makedirs(data_dir, exist_ok=True)
+        return data_dir
+    return BASE_DIR
+
+
+DB_PATH = os.path.join(get_data_dir(), "tcc_assistant.db")
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -228,6 +246,27 @@ def set_setting(key, value):
     ''', (key, str(value)))
     conn.commit()
     conn.close()
+
+
+def get_smtp_settings():
+    """Return SMTP settings from app_settings with .env environment fallback."""
+    server = get_setting("smtp_server") or os.environ.get("SMTP_SERVER", "")
+    port = get_setting("smtp_port") or os.environ.get("SMTP_PORT", "587")
+    user = get_setting("smtp_user") or os.environ.get("SMTP_USER", "")
+    password = get_setting("smtp_password") or os.environ.get("SMTP_PASSWORD", "")
+    return {
+        "server": server.strip(),
+        "port": str(port).strip() or "587",
+        "user": user.strip(),
+        "password": password.strip(),
+    }
+
+
+def set_smtp_settings(server, port, user, password):
+    set_setting("smtp_server", server.strip())
+    set_setting("smtp_port", str(port).strip() or "587")
+    set_setting("smtp_user", user.strip())
+    set_setting("smtp_password", password.strip())
 
 if __name__ == "__main__":
     init_db()

@@ -42,7 +42,7 @@ A exclusão de um projeto tem efeito cascata (CASCADE) sobre as suas anotações
 
 ### 4.1. Painel de Controle (Dashboard)
 A tela inicial lista todos os projetos de revisão cadastrados.
-- **Cabeçalho e Tema:** Exibe o logotipo do Docentia e o botão para alternar entre **Modo Claro** e **Modo Escuro** (preferência salva em `app_settings`).
+- **Cabeçalho e Tema:** Exibe o logotipo do Docentia, o botão **Configurar E-mail** (`EmailSettingsDialog` com presets para Gmail/Outlook, guia de Senha de App e teste de conexão) e o botão para alternar entre **Modo Claro** e **Modo Escuro** (preferência salva em `app_settings`).
 - **Cartões de Métricas:** Indicadores resumidos de **Total de Revisões**, **Em Andamento** e **Concluídas**.
 - **Nova Revisão:** Abre um formulário (`NewProjectDialog`) para criar um novo projeto informando Nome do Aluno, Título do TCC, Nome e E-mail do Orientador e o caminho do arquivo PDF correspondente.
 - **Abrir Revisão / Editar / Alterar Status / Excluir:** Ações rápidas para abrir o Workspace, editar metadados (`EditProjectDialog`), alternar o status entre `"In Progress"` e `"Concluído"` ou apagar o projeto e suas anotações (com confirmação prévia).

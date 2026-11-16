@@ -25,15 +25,15 @@ O sistema segue o padrão conceitual **Model-View-Controller (MVC)** de forma ad
 Este é o ponto de entrada da aplicação (`entry point`). Responsável por instanciar a `QApplication`.
 - **`TCCAssistantApp` (QMainWindow)**: Classe principal que gerencia o estado da navegação. Controla o que é exibido no painel central (Dashboard de Projetos vs. Workspace de Revisão).
 - **`PDFViewer` (QGraphicsView)**: Um componente customizado herdado do Qt. Ele gerencia o carregamento de páginas do PyMuPDF, rasteriza-as como `QPixmap` e desenha na tela. Implementa também a seleção com "Rubber Band" e a extração de texto via caixa delimitadora (`get_textbox()`).
-- **Exportação e E-mail**: Utiliza bibliotecas internas como `smtplib` em junção com o parser DOCX/QTextDocument para formatar os anexos e submeter vias de e-mail ao orientador configurado no projeto.
+- **Exportação e E-mail**: Utiliza bibliotecas internas como `smtplib` em junção com o parser DOCX/QTextDocument para formatar os anexos e submeter vias de e-mail ao orientador configurado no projeto, com suporte à configuração direta via `EmailSettingsDialog`.
 
 ### 2. `database.py` (Persistência)
-Camada isolada para lidar com requisições SQL, resolvendo `tcc_assistant.db` sempre no diretório da aplicação (`BASE_DIR`). Garante que os formulários e listas da UI possam carregar dados limpos em formato de dicionários (`sqlite3.Row`).
-- Gerencia três tabelas: **Projetos** (`projects` — metadados do aluno, orientador, caminhos), **Anotações** (`annotations` — vínculo 1:N com Projeto, armazenando recortes, páginas e anotações do revisor) e **Configurações** (`app_settings` — chave/valor para persistência do tema ativo via `get_setting()` / `set_setting()`).
+Camada isolada para lidar com requisições SQL, utilizando `get_data_dir()` para resolver `tcc_assistant.db` no diretório da aplicação em desenvolvimento ou na pasta de dados do usuário (`%LOCALAPPDATA%\Docentia`, `~/.local/share/Docentia`, `~/Library/Application Support/Docentia`) em executáveis empacotados (`frozen`). Garante que os formulários e listas da UI possam carregar dados limpos em formato de dicionários (`sqlite3.Row`).
+- Gerencia três tabelas: **Projetos** (`projects` — metadados do aluno, orientador, caminhos), **Anotações** (`annotations` — vínculo 1:N com Projeto, armazenando recortes, páginas e anotações do revisor) e **Configurações** (`app_settings` — chave/valor para persistência do tema ativo e credenciais SMTP via `get_setting()` / `set_setting()` e `get_smtp_settings()` / `set_smtp_settings()`).
 - Possui uma lógica simples de **migrations** no `init_db()` usando `PRAGMA table_info` para criar dinamicamente novas colunas (como `advisor_name` e `advisor_email` caso não existam).
 
 ### 3. `ui_theme.py` (Temas e Recursos Visuais)
-Centraliza a identidade visual do **Docentia** e o carregamento de recursos relativos à pasta raiz (`BASE_DIR`):
+Centraliza a identidade visual do **Docentia** e o carregamento de recursos em desenvolvimento (`BASE_DIR`) e em builds empacotados via PyInstaller (`sys._MEIPASS`):
 - **`DARK_GLASS_QSS` e `LIGHT_PAPER_QSS`**: Folhas de estilo QSS completas para os modos Escuro e Claro.
 - **`THEME_TOKENS`**: Dicionário com cores adaptativas para o canvas do PDF (`scene_bg`), ícones e abas de categoria.
 - **`load_svg_icon()` / `load_svg_pixmap()` / `resource_path()`**: Renderizam ícones e ilustrações SVG de `assets/` com suporte a HiDPI e colorização dinâmica.
@@ -51,21 +51,29 @@ Este arquivo é puramente focado em extração de NLP/Regex. Ele processa PDFs i
 ```text
 docentia/
 │
+├── .github/workflows/
+│   └── release.yml              # Pipeline GitHub Actions (Windows, Linux e macOS)
+├── packaging/
+│   ├── windows/docentia.iss     # Script do instalador Windows (Inno Setup)
+│   └── linux/                   # Atalho .desktop e instalador de atalho Linux
 ├── main.py                      # Ponto de entrada e Interface Gráfica
 ├── ui_theme.py                  # Temas Dark Glass / Light Paper e carregador SVG
 ├── database.py                  # Manipulação do SQLite
 ├── validador_citacoes.py        # Motor Regex de validação ABNT
+├── docentia.spec                # Receita de empacotamento PyInstaller
 ├── tcc_assistant.db             # Arquivo SQLite gerado localmente
 ├── instalar.bat                 # Instalador automático em 2 cliques para Windows
 ├── iniciar.bat                  # Inicializador rápido para Windows (usa venv)
 ├── requirements.txt             # Lista de dependências Python do projeto
-├── .env                         # Variáveis de ambiente locais (SMTP)
+├── .env                         # Variáveis de ambiente locais (SMTP opcional)
 ├── .env-example                 # Modelo de configuração SMTP
 ├── LICENSE                      # Licença MIT
 ├── README.md                    # Guia rápido
 │
-├── assets/                      # Logo, ícones SVG e ilustrações
+├── assets/                      # Logo (.svg/.png/.ico), ícones SVG e ilustrações
 │   ├── logo.svg
+│   ├── logo.png
+│   ├── logo.ico
 │   ├── icons/
 │   └── illustrations/
 │

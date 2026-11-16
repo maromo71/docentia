@@ -1,4 +1,5 @@
 import os
+import sys
 from PyQt6.QtCore import Qt, QByteArray, QRectF
 from PyQt6.QtGui import QIcon, QPainter, QPixmap
 from PyQt6.QtSvg import QSvgRenderer
@@ -7,7 +8,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def resource_path(relative_path: str) -> str:
-    """Resolve asset paths relative to the application root."""
+    """Resolve bundled asset paths in both source and frozen (PyInstaller) builds."""
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(BASE_DIR, relative_path)
 
 
@@ -161,20 +164,26 @@ QTableCornerButton::section {
 }
 
 /* Inputs */
-QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit {
+QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit, QComboBox {
     background-color: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 6px;
     padding: 8px;
     color: #e2e8f0;
 }
-QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus {
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus, QComboBox:focus {
     border: 1px solid rgba(59, 130, 246, 0.7);
     background-color: rgba(0, 0, 0, 0.45);
 }
+QComboBox QAbstractItemView {
+    background-color: #111827;
+    color: #e2e8f0;
+    selection-background-color: rgba(59, 130, 246, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
 
-/* Radio Buttons */
-QRadioButton {
+/* Radio Buttons & Checkboxes */
+QRadioButton, QCheckBox {
     spacing: 8px;
     color: #e2e8f0;
     background: transparent;
@@ -377,20 +386,26 @@ QTableCornerButton::section {
 }
 
 /* Inputs */
-QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit {
+QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit, QComboBox {
     background-color: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     padding: 8px;
     color: #0f172a;
 }
-QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus {
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus, QComboBox:focus {
     border: 1px solid #3b82f6;
     background-color: #ffffff;
 }
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #0f172a;
+    selection-background-color: #dbeafe;
+    border: 1px solid #cbd5e1;
+}
 
-/* Radio Buttons */
-QRadioButton {
+/* Radio Buttons & Checkboxes */
+QRadioButton, QCheckBox {
     spacing: 8px;
     color: #0f172a;
     background: transparent;

@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QGraphicsView, QGraphicsScene, QGraphicsPixmapItem,
                              QDialog, QTableWidgetItem, QMessageBox,
                              QDateEdit, QRadioButton, QButtonGroup, QPlainTextEdit,
-                             QFrame, QStackedWidget)
+                             QFrame, QStackedWidget, QComboBox, QCheckBox)
 from PyQt6.QtCore import Qt, pyqtSignal, QRectF, QTimer, QDate, QMarginsF, QSize
 from PyQt6.QtGui import QPdfWriter, QTextDocument, QPageSize, QPageLayout, QPixmap, QImage, QColor, QBrush
 from PyQt6.QtSvgWidgets import QSvgWidget
@@ -29,7 +29,10 @@ from ui_theme import (
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+for _env_dir in (db.get_data_dir(), BASE_DIR):
+    _env_file = os.path.join(_env_dir, ".env")
+    if os.path.exists(_env_file):
+        load_dotenv(_env_file)
 
 
 class NewProjectDialog(QDialog):
@@ -251,6 +254,161 @@ class ExportDialog(QDialog):
         self.evaluator_name = self.input_evaluator.text().strip()
         self.date_str = self.input_date.date().toString("dd/MM/yyyy")
         self.export_format = "pdf" if self.radio_pdf.isChecked() else "docx"
+        self.accept()
+
+
+class EmailSettingsDialog(QDialog):
+    """Dialog to configure and test SMTP credentials (Gmail, Outlook or custom)."""
+
+    PRESETS = {
+        "Gmail (Google)": ("smtp.gmail.com", "587"),
+        "Outlook / Microsoft 365": ("smtp.office365.com", "587"),
+        "Outro (Personalizado)": ("", "587"),
+    }
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Configurar E-mail (SMTP)")
+        self.setMinimumWidth(520)
+
+        current = db.get_smtp_settings()
+
+        layout = QVBoxLayout(self)
+        layout.setSpacing(12)
+
+        form = QFormLayout()
+        form.setSpacing(10)
+
+        self.combo_provider = QComboBox()
+        self.combo_provider.addItems(list(self.PRESETS.keys()))
+        if current["server"] == "smtp.office365.com":
+            self.combo_provider.setCurrentText("Outlook / Microsoft 365")
+        elif current["server"] and current["server"] != "smtp.gmail.com":
+            self.combo_provider.setCurrentText("Outro (Personalizado)")
+        else:
+            self.combo_provider.setCurrentText("Gmail (Google)")
+        self.combo_provider.currentTextChanged.connect(self._apply_preset)
+        form.addRow("Provedor:", self.combo_provider)
+
+        self.input_server = QLineEdit(current["server"] or "smtp.gmail.com")
+        self.input_server.setPlaceholderText("ex: smtp.gmail.com")
+        form.addRow("Servidor SMTP:", self.input_server)
+
+        self.input_port = QLineEdit(current["port"] or "587")
+        self.input_port.setPlaceholderText("587")
+        form.addRow("Porta (TLS):", self.input_port)
+
+        self.input_user = QLineEdit(current["user"])
+        self.input_user.setPlaceholderText("seu-email@gmail.com")
+        form.addRow("Seu E-mail:", self.input_user)
+
+        self.input_password = QLineEdit(current["password"])
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_password.setPlaceholderText("Senha de App de 16 letras (Google)")
+        form.addRow("Senha / Senha de App:", self.input_password)
+
+        self.chk_show_pwd = QCheckBox("Mostrar senha")
+        self.chk_show_pwd.toggled.connect(
+            lambda checked: self.input_password.setEchoMode(
+                QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password
+            )
+        )
+        form.addRow("", self.chk_show_pwd)
+
+        layout.addLayout(form)
+
+        help_box = QFrame()
+        help_box.setObjectName("header_card")
+        help_layout = QVBoxLayout(help_box)
+        help_layout.setContentsMargins(12, 10, 12, 10)
+        lbl_help = QLabel(
+            "<b>Como usar com Gmail (Google):</b><br>"
+            "1. Ative a <b>Verificação em duas etapas</b> na sua Conta Google.<br>"
+            "2. Acesse <a href='https://myaccount.google.com/apppasswords'>myaccount.google.com/apppasswords</a> "
+            "e crie uma <b>Senha de App</b> (ex.: Docentia).<br>"
+            "3. Cole o código de <b>16 letras</b> acima (a senha comum do Gmail não funciona)."
+        )
+        lbl_help.setWordWrap(True)
+        lbl_help.setOpenExternalLinks(True)
+        lbl_help.setObjectName("lbl_subtitle")
+        help_layout.addWidget(lbl_help)
+        layout.addWidget(help_box)
+
+        btn_layout = QHBoxLayout()
+        btn_test = QPushButton(" Testar Conexão")
+        btn_test.setObjectName("btn_blue")
+        btn_test.setIcon(load_svg_icon("assets/icons/refresh.svg", "#ffffff", 15))
+        btn_test.clicked.connect(self._test_connection)
+
+        btn_save = QPushButton(" Salvar")
+        btn_save.setObjectName("btn_green")
+        btn_save.setIcon(load_svg_icon("assets/icons/save.svg", "#ffffff", 15))
+        btn_save.clicked.connect(self._save_settings)
+
+        btn_cancel = QPushButton("Cancelar")
+        btn_cancel.setObjectName("btn_red")
+        btn_cancel.clicked.connect(self.reject)
+
+        btn_layout.addWidget(btn_test)
+        btn_layout.addStretch()
+        btn_layout.addWidget(btn_save)
+        btn_layout.addWidget(btn_cancel)
+        layout.addLayout(btn_layout)
+
+    def _apply_preset(self, name: str):
+        server, port = self.PRESETS.get(name, ("", "587"))
+        if server:
+            self.input_server.setText(server)
+            self.input_port.setText(port)
+
+    def _validated_values(self):
+        server = self.input_server.text().strip()
+        port_raw = self.input_port.text().strip()
+        user = self.input_user.text().strip()
+        password = self.input_password.text().strip()
+        if not server or not port_raw or not user or not password:
+            QMessageBox.warning(self, "Aviso", "Preencha servidor, porta, e-mail e senha.")
+            return None
+        try:
+            port = int(port_raw)
+        except ValueError:
+            QMessageBox.warning(self, "Aviso", "A porta SMTP deve ser um número (ex.: 587).")
+            return None
+        return server, port, user, password
+
+    def _test_connection(self):
+        vals = self._validated_values()
+        if not vals:
+            return
+        server, port, user, password = vals
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            with smtplib.SMTP(server, port, timeout=15) as smtp:
+                smtp.starttls()
+                smtp.login(user, password)
+            QApplication.restoreOverrideCursor()
+            QMessageBox.information(self, "Conexão OK", "Autenticação SMTP realizada com sucesso!")
+        except smtplib.SMTPAuthenticationError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(
+                self,
+                "Falha de Autenticação",
+                "Não foi possível autenticar no servidor SMTP.\n\n"
+                "Se estiver usando Gmail, lembre-se de utilizar uma Senha de App de 16 letras "
+                "(a senha normal da conta Google é bloqueada).\n\n"
+                f"Detalhe: {e}",
+            )
+        except Exception as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self, "Erro de Conexão", f"Falha ao conectar no servidor SMTP:\n{e}")
+
+    def _save_settings(self):
+        vals = self._validated_values()
+        if not vals:
+            return
+        server, port, user, password = vals
+        db.set_smtp_settings(server, port, user, password)
+        QMessageBox.information(self, "Sucesso", "Configurações de e-mail salvas localmente.")
         self.accept()
 
 
@@ -602,6 +760,12 @@ class TCCAssistantApp(QMainWindow):
             except RuntimeError:
                 pass
 
+        if hasattr(self, "btn_email_settings") and self.btn_email_settings is not None:
+            try:
+                self.btn_email_settings.setIcon(load_svg_icon("assets/icons/mail.svg", neutral_color, 16))
+            except RuntimeError:
+                pass
+
         if hasattr(self, "pdf_viewer") and self.pdf_viewer is not None:
             try:
                 self.pdf_viewer.set_theme(self.current_theme)
@@ -689,6 +853,13 @@ class TCCAssistantApp(QMainWindow):
         title_col.addWidget(subtitle)
         header_layout.addLayout(title_col)
         header_layout.addStretch()
+
+        self.btn_email_settings = QPushButton(" Configurar E-mail")
+        self.btn_email_settings.setObjectName("btn_ghost")
+        self.btn_email_settings.setIconSize(QSize(16, 16))
+        self.btn_email_settings.setToolTip("Configurar conta Gmail / SMTP para envio de relatórios")
+        self.btn_email_settings.clicked.connect(self.open_email_settings)
+        header_layout.addWidget(self.btn_email_settings)
 
         header_layout.addWidget(self._create_theme_toggle_button())
         layout.addWidget(header_card)
@@ -1429,7 +1600,7 @@ class TCCAssistantApp(QMainWindow):
                 .info {{ font-size: 14pt; margin-bottom: 20pt; }}
                 .notes {{ margin-bottom: 20pt; }}
                 .signature-section {{ margin-top: 50pt; text-align: center; }}
-                .cursive-signature {{ font-family: 'Lucida Handwriting', 'Brush Script MT', cursive; font-size: 12pt; color: #000; margin-bottom: 5pt; }}
+                .cursive-signature {{ font-family: 'Lucida Handwriting', 'Brush Script MT', 'Apple Chancery', 'URW Chancery L', cursive; font-size: 12pt; color: #000; margin-bottom: 5pt; }}
                 .signature-line {{ border-top: 1px solid #000; width: 300pt; margin: 0 auto; margin-top: 10pt; padding-top: 5pt; }}
             </style>
         </head>
@@ -1540,6 +1711,10 @@ class TCCAssistantApp(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Falha ao exportar relatório:\n{str(e)}")
 
+    def open_email_settings(self):
+        dialog = EmailSettingsDialog(self)
+        return dialog.exec() == QDialog.DialogCode.Accepted
+
     def send_reports_by_email(self):
         if not self.current_project_id:
             return
@@ -1549,6 +1724,18 @@ class TCCAssistantApp(QMainWindow):
         if not advisor_email:
             QMessageBox.warning(self, "Aviso", "O e-mail do orientador não está configurado neste projeto. Edite o projeto para adicionar o e-mail.")
             return
+
+        smtp_cfg = db.get_smtp_settings()
+        if not smtp_cfg["server"] or not smtp_cfg["user"] or not smtp_cfg["password"]:
+            reply = QMessageBox.question(
+                self,
+                "Configurar E-mail",
+                "As credenciais de envio (SMTP/Gmail) ainda não estão configuradas.\n"
+                "Deseja configurá-las agora?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes or not self.open_email_settings():
+                return
             
         dialog = ExportDialog(self)
         dialog.setWindowTitle("Configurar Envio de E-mail")
@@ -1584,13 +1771,14 @@ class TCCAssistantApp(QMainWindow):
                 QMessageBox.critical(self, "Erro", f"Falha ao enviar e-mail:\n{str(e)}")
                 
     def _send_email_smtp(self, recipient_email, report1_path, report2_path, project_data):
-        smtp_server = os.environ.get("SMTP_SERVER", "")
-        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = os.environ.get("SMTP_USER", "")
-        smtp_password = os.environ.get("SMTP_PASSWORD", "")
+        smtp_cfg = db.get_smtp_settings()
+        smtp_server = smtp_cfg["server"]
+        smtp_port = int(smtp_cfg["port"] or "587")
+        smtp_user = smtp_cfg["user"]
+        smtp_password = smtp_cfg["password"]
         
         if not smtp_server or not smtp_user or not smtp_password:
-            raise Exception("Credenciais SMTP não configuradas no arquivo .env.")
+            raise Exception("Credenciais SMTP não configuradas. Use o botão 'Configurar E-mail' no Painel.")
             
         msg = EmailMessage()
         msg['Subject'] = f"Relatórios de Revisão de TCC - {project_data['student_name']}"
@@ -1609,7 +1797,7 @@ class TCCAssistantApp(QMainWindow):
             with open(file_path, 'rb') as fp:
                 msg.add_attachment(fp.read(), maintype=maintype, subtype=subtype, filename=os.path.basename(file_path))
                 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=20) as server:
             server.starttls()
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
@@ -1625,6 +1813,8 @@ class TCCAssistantApp(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setApplicationName("Docentia")
+    app.setOrganizationName("Docentia")
     window = TCCAssistantApp()
     window.show()
     sys.exit(app.exec())

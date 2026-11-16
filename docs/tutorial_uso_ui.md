@@ -4,7 +4,7 @@ Bem-vindo ao **Docentia**! Preparamos este tutorial com o olhar afiado de um des
 
 ## 1. Visão Geral: O Painel de Projetos (Dashboard)
 
-Logo ao abrir o aplicativo (`python main.py` ou pelo atalho [`iniciar.bat`](../iniciar.bat)), você verá uma interface moderna com cartões de resumo (**Total de Revisões**, **Em Andamento**, **Concluídas**) e alternância entre **Modo Escuro** e **Modo Claro** no canto superior direito.
+Logo ao abrir o aplicativo (`python main.py`, pelo atalho [`iniciar.bat`](../iniciar.bat) ou pelo executável instalado), você verá uma interface moderna com cartões de resumo (**Total de Revisões**, **Em Andamento**, **Concluídas**), botão **Configurar E-mail** para cadastro direto do Gmail/SMTP e alternância entre **Modo Escuro** e **Modo Claro** no canto superior direito.
 
 - O painel exibe uma **tabela listando todos os trabalhos** já avaliados ou em avaliação, além de um campo de busca (`Filtrar por aluno ou título...`).
 - **Botões de Ação**: A parte superior dispõe botões para **Nova Revisão**, **Abrir Revisão**, **Editar**, **Alterar Status** e **Excluir**. As ações sobre um trabalho existente funcionam quando um projeto da tabela estiver selecionado.

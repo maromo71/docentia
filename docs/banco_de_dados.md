@@ -1,6 +1,6 @@
 # Modelagem do Banco de Dados
 
-O banco de dados utilizado é o **SQLite3**, configurado e operado localmente através do arquivo `tcc_assistant.db` (resolvido no mesmo diretório de `database.py`). 
+O banco de dados utilizado é o **SQLite3**, configurado e operado localmente através do arquivo `tcc_assistant.db` (resolvido no diretório da aplicação em desenvolvimento ou na pasta de dados do usuário em builds empacotados via `get_data_dir()`). 
 
 ## 1. Schema do Banco de Dados
 
@@ -35,12 +35,12 @@ Cada registro aponta uma correção, sugestão ou comentário feito pelo profess
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Data da criação da anotação. |
 
 ### Tabela `app_settings`
-Armazena preferências persistentes da aplicação em formato chave-valor (atualmente utilizada para salvar o tema escolhido pelo usuário: `"dark"` ou `"light"`).
+Armazena preferências persistentes da aplicação em formato chave-valor (tema escolhido pelo usuário e credenciais SMTP configuradas pela UI, com fallback para `.env`).
 
 | Coluna | Tipo | Restrições | Descrição |
 | :--- | :--- | :--- | :--- |
-| `key` | TEXT | PRIMARY KEY | Identificador da configuração (ex: `'theme'`). |
-| `value` | TEXT | NOT NULL | Valor armazenado (ex: `'dark'` ou `'light'`). |
+| `key` | TEXT | PRIMARY KEY | Identificador da configuração (ex: `'theme'`, `'smtp_server'`, `'smtp_port'`, `'smtp_user'`, `'smtp_password'`). |
+| `value` | TEXT | NOT NULL | Valor armazenado (ex: `'dark'`, `'light'`, `'smtp.gmail.com'`). |
 
 ---
 

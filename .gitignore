@@ -12,6 +12,12 @@ ENV/
 env.bak/
 venv.bak/
 
+# Packaging / Build
+build/
+dist/
+assets/logo.icns
+assets/logo.iconset/
+
 # Database
 *.sqlite3
 *.sqlite

@@ -136,6 +136,7 @@ classDiagram
         +init_dashboard()
         +init_workspace(project_id)
         +toggle_theme()
+        +open_email_settings()
         +run_citation_validation()
         +send_reports_by_email()
     }
@@ -159,12 +160,15 @@ classDiagram
 
     class database {
         <<module>>
+        +get_data_dir()
         +create_project()
         +get_project()
         +add_annotation()
         +delete_annotation()
         +get_setting()
         +set_setting()
+        +get_smtp_settings()
+        +set_smtp_settings()
     }
     
     class validador_citacoes {

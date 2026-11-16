@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Docentia
+Comment=Revisão acadêmica de TCC e validação ABNT
+Exec=bash -c '"$(dirname "$1")/Docentia"' _ %k
+Icon=docentia
+Terminal=false
+Categories=Education;Office;

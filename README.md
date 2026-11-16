@@ -89,55 +89,58 @@ A interface combina produtividade acadêmica com acabamento visual moderno:
 
 ## ◈ Instalação e Execução
 
-### 🚀 Instalação Fácil no Windows *(Recomendado — 2 cliques)*
+### 📦 Opção 1 — Baixar Versão Pronta *(Mais fácil: Windows, macOS e Linux)*
 
-Você **não** precisa saber programar nem digitar comandos no terminal. Siga estes passos apenas na primeira vez:
+Você **não** precisa instalar Python nem digitar comandos. Basta acessar a página de [**Releases no GitHub**](https://github.com/maromo71/docentia/releases) e baixar o arquivo do seu sistema:
+
+- **Windows:** baixe **`Docentia-Setup-Windows.exe`** *(instalador padrão)* ou **`Docentia-Windows-Portable.zip`** *(extrair e abrir `Docentia.exe`)*.
+  > *Se aparecer o aviso "O Windows protegeu o computador", clique em **Mais informações** → **Executar assim mesmo**.*
+- **macOS (Apple Silicon M1/M2/M3/M4):** baixe **`Docentia-macOS-arm64.dmg`**, abra o arquivo e arraste o **Docentia** para a pasta **Aplicativos**.
+  > *Na primeira abertura, caso o macOS exiba aviso de desenvolvedor não verificado, vá em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.*
+- **Linux (x86_64):** baixe **`Docentia-Linux-x86_64.tar.gz`**, extraia a pasta e execute `./Docentia` *(ou rode `./instalar-atalho.sh` para criar atalho no menu de aplicativos)*.
+
+---
+
+### 🚀 Opção 2 — Instalação via Código-fonte no Windows *(2 cliques)*
+
+Se preferir rodar diretamente pelo código-fonte em Python:
 
 1. **Instale o Python** *(se ainda não tiver no computador)*
    - Baixe a versão mais recente em [python.org/downloads](https://www.python.org/downloads/).
    - **ATENÇÃO:** na **primeira tela** do instalador, **marque a caixinha `"Add python.exe to PATH"`** antes de clicar em *Install Now*.
 
 2. **Baixe o Docentia**
-   - No topo desta página do GitHub, clique no botão verde **`<> Code`** → **`Download ZIP`**.
-   - Após baixar, clique com o botão direito no arquivo `.zip` e selecione **"Extrair tudo..."** (por exemplo, para `C:\docentia`).
+   - No topo desta página do GitHub, clique no botão verde **`<> Code`** → **`Download ZIP`** e extraia o arquivo.
 
 3. **Execute o instalador automático**
    - Abra a pasta extraída e dê **dois cliques em [`instalar.bat`](instalar.bat)**.
-   - Uma janela preta será aberta para preparar tudo automaticamente (`venv`, bibliotecas do [`requirements.txt`](requirements.txt) e o arquivo `.env`).
-   - Quando aparecer **`Instalacao concluida com sucesso!`**, pressione qualquer tecla para fechar.
+   - Quando aparecer **`Instalacao concluida com sucesso!`**, feche a janela.
 
 4. **Abra o programa no dia a dia**
-   - Sempre que quiser usar o Docentia, basta dar **dois cliques em [`iniciar.bat`](iniciar.bat)** *(não é necessário rodar o `instalar.bat` novamente)*.
+   - Sempre que quiser usar o Docentia, basta dar **dois cliques em [`iniciar.bat`](iniciar.bat)**.
 
 ---
 
 ### ✉️ Configurar o envio de e-mail com Gmail *(opcional)*
 
-Se você quiser enviar os relatórios diretamente pelo botão **E-mail** do Docentia (caso contrário, pule esta etapa e use normalmente a exportação em PDF, Word e Excel):
+Você pode configurar tudo **dentro do próprio aplicativo**, sem precisar editar arquivos ocultos:
 
-1. Acesse sua Conta Google e certifique-se de que a **Verificação em duas etapas** está ativada na aba *Segurança*.
-2. Entre diretamente em [**Senhas de App do Google**](https://myaccount.google.com/apppasswords), digite um nome (ex.: `Docentia`) e clique em **Criar**. Copie o código de **16 letras** gerado.
-3. Na pasta do Docentia, clique com o botão direito no arquivo **`.env`** *(criado automaticamente pelo `instalar.bat`)* → **Abrir com** → **Bloco de Notas** e preencha:
-   ```env
-   SMTP_SERVER=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=seu-email@gmail.com
-   SMTP_PASSWORD=as16letrasdasenhadeapp
-   ```
-4. Pressione **`Ctrl + S`** para salvar e feche o Bloco de Notas.
+1. Acesse sua Conta Google e ative a **Verificação em duas etapas** na aba *Segurança*.
+2. Entre em [**Senhas de App do Google**](https://myaccount.google.com/apppasswords), digite um nome (ex.: `Docentia`) e clique em **Criar**. Copie o código de **16 letras** gerado.
+3. Abra o **Docentia**, clique no botão **`Configurar E-mail`** no topo do Painel Inicial, deixe o provedor **Gmail (Google)** selecionado, informe seu e-mail, cole a **Senha de App de 16 letras** e clique em **Testar Conexão** → **Salvar**.
 
-> **Importante:** A senha comum do seu Gmail **não** funciona no envio automático; use sempre a **Senha de App**. Evite usar *"Salvar como"* no Bloco de Notas para não salvar o arquivo por engano como `.env.txt`.
+> **Importante:** A senha comum do Gmail **não** funciona no envio automático; use sempre a **Senha de App**. *(Desenvolvedores que preferirem usar `.env` podem copiar `.env-example` para `.env`, que continua funcionando como fallback.)*
 
 ---
 
 ### 🛟 Problemas comuns (Solução rápida)
 
+- **Aviso de segurança ao abrir no Windows ou macOS:** ocorre porque o instalador comunitário não possui certificado pago de assinatura; basta autorizar uma única vez conforme indicado na Opção 1.
 - **"Python não encontrado" ao rodar `instalar.bat`:** execute novamente o instalador do Python e marque **`Add python.exe to PATH`** na primeira tela.
-- **Aviso *"O Windows protegeu o computador"*:** clique em **Mais informações** → **Executar assim mesmo**.
-- **Erro ao enviar e-mail:** confirme que o arquivo se chama `.env` (não `.env.txt`) e que a senha colocada é a **Senha de App de 16 letras** do Google.
+- **Erro ao enviar e-mail:** clique em **`Configurar E-mail`** no Painel, confirme o uso da **Senha de App de 16 letras** e clique em **Testar Conexão**.
 
 <details>
-<summary><strong>💻 Instalação Manual (Linux, macOS ou via terminal)</strong></summary>
+<summary><strong>💻 Instalação Manual e Build Local (Desenvolvedores)</strong></summary>
 
 1. **Clone o repositório**
    ```bash
@@ -156,23 +159,16 @@ Se você quiser enviar os relatórios diretamente pelo botão **E-mail** do Doce
    source venv/bin/activate
    ```
 
-3. **Instale as dependências**
+3. **Instale as dependências e execute**
    ```bash
    pip install -r requirements.txt
-   ```
-
-4. **Configure o `.env` *(opcional)***
-   ```bash
-   # Windows (CMD)
-   copy .env-example .env
-
-   # Linux / macOS
-   cp .env-example .env
-   ```
-
-5. **Execute a aplicação**
-   ```bash
    python main.py
+   ```
+
+4. **Gerar build local com PyInstaller *(opcional)***
+   ```bash
+   pip install pyinstaller
+   pyinstaller --clean --noconfirm docentia.spec
    ```
 
 </details>
@@ -183,20 +179,23 @@ Se você quiser enviar os relatórios diretamente pelo botão **E-mail** do Doce
 
 ```text
 docentia/
+├── .github/workflows/
+│   └── release.yml              # Pipeline GitHub Actions (Windows, Linux e macOS)
+├── packaging/
+│   ├── windows/docentia.iss     # Script do instalador Windows (Inno Setup)
+│   └── linux/                   # Atalho .desktop e script de instalação no Linux
 ├── main.py                      # Interface gráfica PyQt6 (Dashboard, Workspace, Diálogos e Exportação)
 ├── ui_theme.py                  # Temas Dark Glass & Light Paper, tokens de cor e carregador SVG
-├── database.py                  # Camada SQLite (projetos, anotações e preferências de tema)
+├── database.py                  # Camada SQLite (projetos, anotações e configurações/SMTP)
 ├── validador_citacoes.py        # Motor de extração e cruzamento ABNT (Regex + SequenceMatcher)
-├── assets/                      # Identidade visual, ícones SVG e ilustrações de interface
-│   ├── logo.svg
-│   ├── icons/
-│   └── illustrations/
+├── assets/                      # Logo (.svg/.png/.ico), ícones SVG e ilustrações de interface
 ├── docs/                        # Documentação técnica, guia do usuário e especificação Web
 │   └── HARNESS_WEB_MIGRATION.md # Especificação arquitetural para futura versão Web (React + Vite)
-├── instalar.bat                 # Instalador automático em 2 cliques para Windows
-├── iniciar.bat                  # Inicializador rápido para Windows
+├── docentia.spec                # Especificação multiplataforma do PyInstaller
+├── instalar.bat                 # Instalador automático em 2 cliques para Windows (via fonte)
+├── iniciar.bat                  # Inicializador rápido para Windows (via fonte)
 ├── requirements.txt             # Lista de dependências Python do projeto
-├── .env-example                 # Modelo de configuração SMTP
+├── .env-example                 # Modelo opcional de configuração SMTP
 └── LICENSE                      # Licença MIT
 ```
 

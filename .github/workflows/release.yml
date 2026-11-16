@@ -1,0 +1,177 @@
+name: Build and Release Docentia
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Publicar GitHub Release com os instaladores?"
+        required: false
+        default: false
+        type: boolean
+      release_tag:
+        description: "Nome da tag da Release (se publicar)"
+        required: false
+        default: "v1.0.0"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller --clean --noconfirm docentia.spec
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: Compress-Archive -Path dist\Docentia\* -DestinationPath dist\Docentia-Windows-Portable.zip -Force
+
+      - name: Ensure Inno Setup and build installer
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y
+          }
+          $ver = "${{ github.ref_name }}"
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $ver = "${{ inputs.release_tag }}"
+          }
+          $ver = $ver -replace '^v', ''
+          if (-not $ver) { $ver = "1.0.0" }
+          & $iscc "/DMyAppVersion=$ver" "packaging\windows\docentia.iss"
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docentia-windows
+          path: |
+            dist/installer/Docentia-Setup-Windows.exe
+            dist/Docentia-Windows-Portable.zip
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system Qt libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-cursor0 libegl1 libgl1 libxkbcommon-x11-0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller --clean --noconfirm docentia.spec
+
+      - name: Package Linux tar.gz
+        run: |
+          cp assets/logo.png dist/Docentia/logo.png
+          cp packaging/linux/instalar-atalho.sh dist/Docentia/instalar-atalho.sh
+          chmod +x dist/Docentia/Docentia dist/Docentia/instalar-atalho.sh
+          tar -czf dist/Docentia-Linux-x86_64.tar.gz -C dist Docentia
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docentia-linux
+          path: dist/Docentia-Linux-x86_64.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Generate macOS .icns icon
+        run: |
+          mkdir -p assets/logo.iconset
+          sips -z 16 16     assets/logo.png --out assets/logo.iconset/icon_16x16.png
+          sips -z 32 32     assets/logo.png --out assets/logo.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/logo.png --out assets/logo.iconset/icon_32x32.png
+          sips -z 64 64     assets/logo.png --out assets/logo.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/logo.png --out assets/logo.iconset/icon_128x128.png
+          sips -z 256 256   assets/logo.png --out assets/logo.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/logo.png --out assets/logo.iconset/icon_256x256.png
+          sips -z 512 512   assets/logo.png --out assets/logo.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/logo.png --out assets/logo.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/logo.png --out assets/logo.iconset/icon_512x512@2x.png
+          iconutil -c icns assets/logo.iconset -o assets/logo.icns
+
+      - name: Build with PyInstaller
+        env:
+          DOCENTIA_VERSION: ${{ github.ref_name }}
+        run: pyinstaller --clean --noconfirm docentia.spec
+
+      - name: Create macOS DMG
+        run: |
+          hdiutil create -volname "Docentia" -srcfolder dist/Docentia.app -ov -format UDZO dist/Docentia-macOS-arm64.dmg
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docentia-macos
+          path: dist/Docentia-macOS-arm64.dmg
+
+  release:
+    needs: [build-windows, build-linux, build-macos]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.release_tag }}
+          name: "Docentia ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.release_tag }}"
+          generate_release_notes: true
+          files: |
+            release-assets/Docentia-Setup-Windows.exe
+            release-assets/Docentia-Windows-Portable.zip
+            release-assets/Docentia-Linux-x86_64.tar.gz
+            release-assets/Docentia-macOS-arm64.dmg
