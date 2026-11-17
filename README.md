@@ -1,7 +1,11 @@
+
+
+
+
 <div align="center">
 
 <img src="assets/logo.svg" alt="Docentia Logo" width="88" height="88" />
-
+https://github.com/user-attachments/assets/dd571edc-78fb-4f84-b99d-9e6cb0b1cdea
 # Docentia
 
 **Plataforma desktop inteligente para revisão acadêmica de Trabalhos de Conclusão de Curso (TCC)**
