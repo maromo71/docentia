@@ -575,15 +575,8 @@ class CitationReportDialog(QDialog):
         layout = QVBoxLayout(self)
         
         summary_row = QHBoxLayout()
-        total = len(results)
-        ok_count = sum(1 for r in results if str(r.get('Status', '')).upper() == 'OK')
-        warn_count = total - ok_count
-        lbl_info = QLabel(
-            f"<b>{total}</b> itens analisados  |  "
-            f"<span style='color:#10b981;'><b>{ok_count}</b> OK</span>  |  "
-            f"<span style='color:#f97316;'><b>{warn_count}</b> para revisar</span>"
-        )
-        summary_row.addWidget(lbl_info)
+        self.lbl_info = QLabel()
+        summary_row.addWidget(self.lbl_info)
         summary_row.addStretch()
         layout.addLayout(summary_row)
         
@@ -629,13 +622,29 @@ class CitationReportDialog(QDialog):
         
         layout.addLayout(btn_layout)
         
+    @staticmethod
+    def _is_ok_status(status_val: str) -> bool:
+        normalized = str(status_val or "").strip().upper()
+        return normalized == "OK" or normalized.endswith(" OK")
+
+    def _update_summary(self):
+        total = len(self.results)
+        ok_count = sum(1 for r in self.results if self._is_ok_status(r.get('Status', '')))
+        warn_count = total - ok_count
+        self.lbl_info.setText(
+            f"<b>{total}</b> itens analisados  |  "
+            f"<span style='color:#10b981;'><b>{ok_count}</b> OK</span>  |  "
+            f"<span style='color:#f97316;'><b>{warn_count}</b> para revisar</span>"
+        )
+
     def populate_table(self):
+        self._update_summary()
         self.table.setRowCount(0)
         for i, res in enumerate(self.results):
             self.table.insertRow(i)
             status_val = str(res.get('Status', ''))
             status_item = QTableWidgetItem(status_val)
-            if status_val.upper() == 'OK':
+            if self._is_ok_status(status_val):
                 status_item.setIcon(load_svg_icon("assets/icons/check-circle.svg", "#10b981", 15))
             else:
                 status_item.setIcon(load_svg_icon("assets/icons/alert-circle.svg", "#f97316", 15))
@@ -680,6 +689,7 @@ class CitationReportDialog(QDialog):
         if reply == QMessageBox.StandardButton.Yes:
             self.results.pop(row)
             self.table.removeRow(row)
+            self._update_summary()
 
     def export_excel(self):
         path, _ = QFileDialog.getSaveFileName(self, "Salvar Relatório", "relatorio_citacoes.xlsx", "Excel Files (*.xlsx);;CSV Files (*.csv)")
