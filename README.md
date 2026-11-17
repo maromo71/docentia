@@ -1,11 +1,7 @@
-
-
-
-
 <div align="center">
 
 <img src="assets/logo.svg" alt="Docentia Logo" width="88" height="88" />
-https://github.com/user-attachments/assets/dd571edc-78fb-4f84-b99d-9e6cb0b1cdea
+
 # Docentia
 
 **Plataforma desktop inteligente para revisão acadêmica de Trabalhos de Conclusão de Curso (TCC)**
@@ -13,6 +9,7 @@ https://github.com/user-attachments/assets/dd571edc-78fb-4f84-b99d-9e6cb0b1cdea
 Leitura interativa de PDFs, captura instantânea de trechos, validação automatizada de citações ABNT, temas Claro & Escuro e exportação profissional de pareceres.
 
 <p>
+  <a href="#-demonstração-em-vídeo">Demonstração</a> •
   <a href="#-funcionalidades">Funcionalidades</a> •
   <a href="#-design--temas">Design & Temas</a> •
   <a href="#-instalação-e-execução">Instalação</a> •
@@ -38,6 +35,14 @@ Leitura interativa de PDFs, captura instantânea de trechos, validação automat
 ## ✦ Visão Geral
 
 O **Docentia** foi projetado para professores, orientadores e membros de bancas examinadoras que precisam revisar trabalhos acadêmicos com **agilidade, precisão e organização**. Em um único workspace dividido (65% leitura / 35% avaliação), você lê o PDF, destaca trechos diretamente com o mouse, verifica automaticamente a conformidade das citações com a bibliografia e gera o parecer final pronto para entrega.
+
+---
+
+## 🎬 Demonstração em Vídeo
+
+Veja em menos de 40 segundos o fluxo completo de revisão no Docentia (painel inicial, captura de trechos no PDF, anotações, parecer com auto-save, validador ABNT, modo claro e exportação):
+
+https://github.com/user-attachments/assets/dd571edc-78fb-4f84-b99d-9e6cb0b1cdea
 
 ---
 
@@ -71,7 +76,7 @@ O **Docentia** foi projetado para professores, orientadores e membros de bancas 
     </td>
     <td width="50%" valign="top">
       <h3>✉️ Envio Direto ao Orientador</h3>
-      <p>Gere o parecer e a planilha de citações e envie ambos automaticamente em anexo para o e-mail do orientador via SMTP configurado localmente no arquivo <code>.env</code>.</p>
+      <p>Gere o parecer e a planilha de citações e envie ambos automaticamente em anexo para o e-mail do orientador via SMTP configurado diretamente na interface (ou no arquivo <code>.env</code>).</p>
     </td>
   </tr>
 </table>
